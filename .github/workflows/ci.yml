@@ -1,0 +1,42 @@
+# 电商 AI Agent CI 流水线（远端）
+# 本地等效入口：node tools/pipeline.cjs
+# 说明：远端 runner 无云应用网络凭据（sharecode 域名来源校验），云相关阶段跳过；
+#       云冒烟/MQ e2e 由本地 pipeline 或带 secrets 的 self-hosted runner 执行。
+name: ci
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  static-and-unit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      # SDK 供测试与脚本 require（tools/node_modules 不入库）
+      - name: Install SDK
+        run: npm install --prefix tools @tencent-ai/workbuddy-cloud-sdk --no-audit --no-fund
+
+      - name: Static load check (vm sandbox, browser-global-safe)
+        run: node tools/pipeline.cjs --skip-cloud --skip-e2e
+
+  # 可选：self-hosted runner（能访问云应用域名）可解锁完整门禁：
+  #   node tools/pipeline.cjs   # 含云库冒烟 + MQ e2e
+  full-gate:
+    if: github.repository_owner == 'your-org'   # 启用时替换为实际组织
+    runs-on: self-hosted
+    needs: static-and-unit
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Full pipeline (cloud smoke + MQ e2e)
+        run: node tools/pipeline.cjs

@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>电商AI助手 · 智能运营中心（Phase3）</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <header class="topbar">
+    <div class="logo"><span class="dot"></span>电商AI助手 · 智能运营中心</div>
+    <div class="spacer"></div>
+    <span class="sub">第三阶段 · 营销 / 风控 / 巡检 / 分析 / 告警</span>
+    <span id="gateUserBar" style="font-size:12px;color:#334155"></span>
+    <button id="logoutBtn" style="padding:4px 10px;border:1px solid #cbd5e1;border-radius:6px;background:#fff;cursor:pointer;font-size:12px">退出登录</button>
+    <a href="index.html" target="_blank">客服对话</a>
+    <a href="seat.html" target="_blank">人工坐席台</a>
+    <a href="admin.html" target="_blank">管理后台</a>
+    <a href="console.html" target="_blank">运营台</a>
+  </header>
+
+  <div class="layout">
+    <aside class="sidebar">
+      <button class="tab active" data-panel="marketing">📣 智能营销</button>
+      <button class="tab" data-panel="risk">🛡 智能风控</button>
+      <button class="tab" data-panel="inspection">🔍 每日巡检</button>
+      <button class="tab" data-panel="analytics">📊 数据分析</button>
+      <button class="tab" data-panel="alerts">🔔 统一告警</button>
+    </aside>
+
+    <main class="main">
+      <!-- 智能营销 -->
+      <section class="panel active" id="panel-marketing">
+        <h2>智能营销 Agent：用户分层 · 精准触达 · 复购唤醒 · 大促方案</h2>
+        <div class="card">
+          <div class="toolbar">
+            <button class="btn primary" id="btnRfm">🧭 运行 RFM 分层</button>
+            <button class="btn blue" id="btnWake">🔔 生成老客唤醒方案</button>
+            <button class="btn blue" id="btnRepurchase">🔁 生成复购提醒方案</button>
+            <input id="promoDate" type="date" style="width:150px">
+            <button class="btn blue" id="btnPromo">🎯 生成大促活动方案</button>
+            <button class="btn blue" id="btnVip">👑 会员权益提醒</button>
+            <button class="btn blue" id="btnNewArrival">🆕 新品定向推送</button>
+          </div>
+          <div class="toolbar">
+            <span class="empty" style="font-size:12px">触达白名单（逗号分隔，留空=不限）：</span>
+            <input id="whitelist" placeholder="U1001,U1004" style="width:180px">
+            <span class="empty" style="font-size:12px">黑名单：</span>
+            <input id="blacklist" placeholder="U1012,U1014" style="width:180px">
+          </div>
+          <div id="rfmSummary" class="empty" style="padding:6px 0">点击「运行 RFM 分层」开始分析</div>
+          <table class="tbl">
+            <thead><tr><th>用户</th><th>最近购买(R)</th><th>频次(F)</th><th>金额(M)</th><th>分层</th><th>触达策略</th></tr></thead>
+            <tbody id="rfmBody"><tr><td colspan="6" class="empty">等待分析</td></tr></tbody>
+          </table>
+        </div>
+        <div class="card">
+          <h3 style="font-size:14px;margin-bottom:8px">已生成的触达方案</h3>
+          <table class="tbl">
+            <thead><tr><th style="width:22%">标题</th><th style="width:10%">类型</th><th>内容</th><th style="width:14%">渠道</th><th style="width:14%">时间</th></tr></thead>
+            <tbody id="campaignBody"><tr><td colspan="5" class="empty">加载中…</td></tr></tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- 智能风控 -->
+      <section class="panel" id="panel-risk">
+        <h2>智能风控 Agent：异常订单 · 刷单拦截 · 薅羊毛检测 · 秒杀防护</h2>
+        <div class="card">
+          <div class="toolbar">
+            <button class="btn primary" id="btnRiskScan">🚨 全量风控扫描</button>
+            <span id="riskSummary" class="empty" style="font-size:12px">规则：24h≥3单含取消→刷单 · 0元购→拦截 · 同名券≥3→薅羊毛</span>
+          </div>
+          <table class="tbl">
+            <thead><tr><th style="width:16%">事件类型</th><th>用户/订单</th><th style="width:10%">等级</th><th>详情</th><th style="width:10%">处置</th><th style="width:14%">时间</th></tr></thead>
+            <tbody id="riskBody"><tr><td colspan="6" class="empty">点击「全量风控扫描」开始</td></tr></tbody>
+          </table>
+        </div>
+        <div class="card">
+          <h3 style="font-size:14px;margin-bottom:8px">秒杀 / 优惠券限领校验</h3>
+          <div class="toolbar">
+            <select id="guardUser" style="width:180px"></select>
+            <button class="btn blue" id="btnGuard">✅ 模拟领券资格校验（限领2次）</button>
+            <span id="guardResult" class="empty" style="font-size:13px"></span>
+          </div>
+        </div>
+      </section>
+
+      <!-- 每日巡检 -->
+      <section class="panel" id="panel-inspection">
+        <h2>每日自动化业务巡检：库存 / 价格 / 活动 / 积压 / 物流</h2>
+        <div class="card">
+          <div class="toolbar">
+            <button class="btn primary" id="btnInspect">🔍 立即巡检</button>
+            <span id="inspectSummary" class="empty" style="font-size:12px">六项检查：库存异常 · 价格异常 · 活动配置 · 订单积压 · 退款积压 · 物流停滞</span>
+          </div>
+          <table class="tbl">
+            <thead><tr><th style="width:12%">检查项</th><th style="width:8%">等级</th><th>异常详情</th><th style="width:26%">处置建议</th></tr></thead>
+            <tbody id="inspectBody"><tr><td colspan="4" class="empty">点击「立即巡检」开始</td></tr></tbody>
+          </table>
+        </div>
+        <div class="card">
+          <h3 style="font-size:14px;margin-bottom:8px">历史巡检报告</h3>
+          <table class="tbl">
+            <thead><tr><th style="width:14%">日期</th><th style="width:10%">等级</th><th>摘要</th><th style="width:16%">时间</th></tr></thead>
+            <tbody id="inspectHistoryBody"><tr><td colspan="4" class="empty">加载中…</td></tr></tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- 数据分析 -->
+      <section class="panel" id="panel-analytics">
+        <h2>数据智能分析：咨询热点 · 售后归因 · 转化日报</h2>
+        <div class="card">
+          <div class="toolbar">
+            <button class="btn primary" id="btnAnalytics">📊 生成今日数据分析</button>
+          </div>
+          <div id="hotBox" class="empty" style="padding:6px 0">等待生成</div>
+        </div>
+        <div class="card">
+          <h3 style="font-size:14px;margin-bottom:8px">售后高发归因</h3>
+          <div id="attrBox" class="empty" style="padding:6px 0">等待生成</div>
+        </div>
+        <div class="card">
+          <h3 style="font-size:14px;margin-bottom:8px">转化日报</h3>
+          <div id="convBox" class="empty" style="padding:6px 0">等待生成</div>
+        </div>
+      </section>
+      <!-- 统一告警 -->
+      <section class="panel" id="panel-alerts">
+        <h2>全平台统一告警：服务异常 / 风控命中 / 巡检异常 → 实时推送钉钉/企微</h2>
+        <div class="card">
+          <div class="toolbar">
+            <button class="btn primary" id="btnAlerts">🔄 刷新告警</button>
+            <span class="empty" style="font-size:12px">中危以上实时推送；在下方配置真实钉钉/企微机器人 webhook 后生效（浏览器端可能受 CORS 限制，每日定时任务不受限）</span>
+          </div>
+          <table class="tbl">
+            <thead><tr><th style="width:14%">类型</th><th style="width:8%">等级</th><th>内容</th><th style="width:16%">时间</th></tr></thead>
+            <tbody id="alertBody"><tr><td colspan="4" class="empty">加载中…</td></tr></tbody>
+          </table>
+        </div>
+        <div class="card">
+          <h3 style="margin:0 0 10px">📢 推送渠道配置（钉钉/企微机器人 webhook）</h3>
+          <div class="toolbar" style="flex-wrap:wrap;gap:8px">
+            <input id="chName" placeholder="渠道名称" style="width:110px;padding:6px">
+            <select id="chType" style="width:100px;padding:6px"><option value="dingtalk">钉钉</option><option value="wecom">企微</option></select>
+            <input id="chUrl" placeholder="Webhook 地址（https://...）" style="flex:1;min-width:240px;padding:6px">
+            <input id="chSecret" placeholder="加签密钥（钉钉可选）" style="width:150px;padding:6px">
+            <button class="btn blue" id="btnSaveChannel">保存渠道</button>
+          </div>
+          <table class="tbl" style="margin-top:10px">
+            <thead><tr><th style="width:14%">名称</th><th style="width:10%">类型</th><th>Webhook</th><th style="width:10%">状态</th><th style="width:22%">操作</th></tr></thead>
+            <tbody id="chBody"><tr><td colspan="5" class="empty">加载中…</td></tr></tbody>
+          </table>
+        </div>
+      </section>
+
+    </main>
+  </div>
+
+  <div id="toast"></div>
+  <script src="https://cdn.jsdelivr.net/npm/@tencent-ai/workbuddy-cloud-sdk@dev/lib/index.global.js"></script>
+  <script src="js/config.js"></script>
+  <script src="js/tenant.js"></script>
+  <script src="js/gate.js"></script>
+  <script src="js/pii.js"></script>
+  <script src="js/marketing.js"></script>
+  <script src="js/risk.js"></script>
+  <script src="js/inspection.js"></script>
+  <script src="js/analytics.js"></script>
+  <script src="js/alerting.js"></script>
+  <script src="js/rbac.js"></script>
+  <script src="js/ops.js"></script>
+</body>
+</html>

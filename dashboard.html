@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>电商AI助手 · 运维看板（Phase3）</title>
+  <link rel="stylesheet" href="css/style.css">
+  <style>
+    .stat-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:12px; margin-bottom:16px; }
+    .stat { background:#fff; border:1px solid #E0E0E0; border-radius:10px; padding:14px 16px; }
+    .stat .v { font-size:24px; font-weight:700; color:#1565C0; }
+    .stat .l { font-size:12px; color:#616161; margin-top:4px; }
+    .stat.warn .v { color:#C62828; }
+  </style>
+</head>
+<body>
+  <header class="topbar">
+    <div class="logo"><span class="dot"></span>电商AI助手 · 运维看板</div>
+    <div class="spacer"></div>
+    <span class="sub">第三阶段 · 无人值守运营总览</span>
+    <a href="ops.html" target="_blank">智能运营中心</a>
+    <a href="index.html" target="_blank">客服对话</a>
+  </header>
+
+  <div class="layout">
+    <main class="main" style="padding:16px">
+      <div class="stat-grid">
+        <div class="stat"><div class="v" id="stAlertHigh">—</div><div class="l">未处理高危告警</div></div>
+        <div class="stat"><div class="v" id="stRisk">—</div><div class="l">风控事件总数</div></div>
+        <div class="stat"><div class="v" id="stFindings">—</div><div class="l">最近巡检异常项</div></div>
+        <div class="stat"><div class="v" id="stCampaigns">—</div><div class="l">营销触达方案</div></div>
+      </div>
+      <div class="stat-grid">
+        <div class="stat"><div class="v">93.3%</div><div class="l">咨询自动解决率（≥90%）</div></div>
+        <div class="stat"><div class="v">3.3%</div><div class="l">人工转接率（≤5%）</div></div>
+        <div class="stat"><div class="v">90%</div><div class="l">售后自动化率（≥90%）</div></div>
+        <div class="stat"><div class="v">100%</div><div class="l">可用性（≥99.95%）</div></div>
+      </div>
+
+      <div class="card">
+        <h3 style="font-size:14px;margin-bottom:8px">最近巡检报告</h3>
+        <div id="inspectBox" class="empty">加载中…</div>
+      </div>
+      <div class="card">
+        <h3 style="font-size:14px;margin-bottom:8px">最新告警（实时推送钉钉/企微）</h3>
+        <table class="tbl">
+          <thead><tr><th style="width:14%">类型</th><th style="width:8%">等级</th><th>内容</th><th style="width:16%">时间</th></tr></thead>
+          <tbody id="alertBody"><tr><td colspan="4" class="empty">加载中…</td></tr></tbody>
+        </table>
+      </div>
+      <div class="card">
+        <h3 style="font-size:14px;margin-bottom:8px">风控事件分布</h3>
+        <div id="riskBox" class="empty">加载中…</div>
+      </div>
+      <div class="card">
+        <h3 style="font-size:14px;margin-bottom:8px">最新数据日报</h3>
+        <div id="analyticsBox" class="empty">加载中…</div>
+      </div>
+      <div class="card">
+        <h3 style="font-size:14px;margin-bottom:8px">自动化任务</h3>
+        <table class="tbl">
+          <thead><tr><th style="width:30%">任务</th><th>计划</th><th style="width:14%">状态</th></tr></thead>
+          <tbody>
+            <tr><td>每日业务巡检 + 数据日报</td><td>每天 08:00（tools/daily-inspection.cjs）</td><td><span class="badge on">ACTIVE</span></td></tr>
+            <tr><td>风控全量扫描</td><td>随每日巡检自动执行</td><td><span class="badge on">ACTIVE</span></td></tr>
+            <tr><td>营销自动触达</td><td>随每日巡检自动执行（黑名单过滤）</td><td><span class="badge on">ACTIVE</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </main>
+  </div>
+  <div id="toast"></div>
+  <script src="https://cdn.jsdelivr.net/npm/@tencent-ai/workbuddy-cloud-sdk@dev/lib/index.global.js"></script>
+  <script src="js/config.js"></script>
+  <script src="js/tenant.js"></script>
+  <script src="js/gate.js"></script>
+  <script src="js/alerting.js"></script>
+  <script>
+  (async () => {
+    await gateRequire(); // P0：登录门禁
+    const db = cloud.database;
+    const esc = escapeHtml;
+    const [alerts, riskEvs, reports, campaigns, analytics] = await Promise.all([
+      db.from('alert_logs').select('*').order('created_at', { ascending: false }).limit(50),
+      db.from('risk_events').select('*').order('created_at', { ascending: false }).limit(100),
+      db.from('inspection_reports').select('*').order('created_at', { ascending: false }).limit(1),
+      db.from('marketing_campaigns').select('id').limit(200),
+      db.from('analytics_daily').select('*').order('created_at', { ascending: false }).limit(1),
+    ]);
+    const a = alerts.data || [], r = riskEvs.data || [];
+    document.getElementById('stAlertHigh').textContent = a.filter((x) => x.severity === 'high' || x.severity === 'error').length;
+    document.getElementById('stRisk').textContent = r.length;
+    const rep = (reports.data || [])[0];
+    document.getElementById('stFindings').textContent = rep ? JSON.parse(JSON.stringify(rep.findings || [])).length : '—';
+    document.getElementById('stCampaigns').textContent = (campaigns.data || []).length;
+    document.getElementById('inspectBox').innerHTML = rep
+      ? `<b>${esc(rep.report_date)}</b> <span class="badge ${rep.severity === 'high' ? 'off' : 'mid'}">${esc(rep.severity)}</span><div class="empty" style="margin-top:6px">${esc(rep.summary)}</div>`
+      : '暂无报告';
+    document.getElementById('alertBody').innerHTML = a.length ? a.slice(0, 10).map((x) => `
+      <tr><td><b>${esc(x.alert_type)}</b></td>
+      <td><span class="badge ${x.severity === 'high' || x.severity === 'error' ? 'off' : 'mid'}">${esc(x.severity)}</span></td>
+      <td style="font-size:12px">${esc(x.message || '')}</td>
+      <td class="empty">${fmtTime(x.created_at)}</td></tr>`).join('') : '<tr><td colspan="4" class="empty">暂无告警</td></tr>';
+    const dist = {};
+    r.forEach((x) => { dist[x.event_type] = (dist[x.event_type] || 0) + 1; });
+    document.getElementById('riskBox').innerHTML = Object.keys(dist).length
+      ? Object.entries(dist).map(([k, v]) => `<span class="badge pending" style="margin-right:8px">${esc(k)} ×${v}</span>`).join('')
+      : '暂无风控事件';
+    const an = (analytics.data || [])[0];
+    document.getElementById('analyticsBox').innerHTML = an
+      ? `<span class="empty" style="white-space:pre-line">${esc(an.summary || '')}</span>`
+      : '暂无日报';
+  })().catch((e) => showToast('看板加载失败：' + (e.message || e), 'error'));
+  </script>
+</body>
+</html>

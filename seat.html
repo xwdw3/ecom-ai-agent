@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>电商AI助手 · 人工客服坐席台</title>
+  <link rel="stylesheet" href="css/style.css">
+  <style>
+    body { font-family: system-ui, -apple-system, 'PingFang SC', sans-serif; margin: 0; background: #f5f7fa; color: #1f2937; }
+    .topbar { display: flex; align-items: center; gap: 14px; padding: 12px 20px; background: #fff; border-bottom: 1px solid #e5e7eb; }
+    .topbar .logo { font-weight: 700; font-size: 16px; }
+    .topbar a { font-size: 13px; color: #2563eb; text-decoration: none; }
+    .topbar .spacer { flex: 1; }
+    .wrap { display: flex; gap: 16px; padding: 16px 20px; height: calc(100vh - 62px); box-sizing: border-box; }
+    .left { width: 340px; background: #fff; border-radius: 12px; overflow-y: auto; flex-shrink: 0; border: 1px solid #e5e7eb; }
+    .right { flex: 1; display: flex; flex-direction: column; background: #fff; border-radius: 12px; border: 1px solid #e5e7eb; overflow: hidden; }
+    .ticket { padding: 12px 14px; border-bottom: 1px solid #f1f5f9; cursor: pointer; }
+    .ticket:hover { background: #f8fafc; }
+    .ticket.active { background: #eff6ff; border-left: 3px solid #2563eb; }
+    .ticket .q { font-size: 13px; margin: 4px 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .ticket .meta { font-size: 11px; color: #94a3b8; }
+    .badge { display: inline-block; padding: 1px 8px; border-radius: 10px; font-size: 11px; }
+    .badge.open { background: #fef3c7; color: #b45309; }
+    .badge.processing { background: #dbeafe; color: #1d4ed8; }
+    .badge.done { background: #dcfce7; color: #15803d; }
+    .detail-head { padding: 12px 18px; border-bottom: 1px solid #e5e7eb; display: flex; align-items: center; gap: 10px; }
+    .transcript { flex: 1; overflow-y: auto; padding: 16px 18px; background: #f8fafc; }
+    .line { display: flex; margin-bottom: 10px; }
+    .line.user { justify-content: flex-start; }
+    .line.agent, .line.assistant { justify-content: flex-end; }
+    .line .who { font-size: 11px; color: #94a3b8; margin-right: 6px; align-self: flex-end; }
+    .line .b { max-width: 70%; padding: 8px 12px; border-radius: 10px; font-size: 13px; white-space: pre-wrap; word-break: break-word; }
+    .line.user .b { background: #fff; border: 1px solid #e5e7eb; }
+    .line.agent .b { background: #dbeafe; }
+    .line.assistant .b { background: #f1f5f9; }
+    .replybar { padding: 12px 18px; border-top: 1px solid #e5e7eb; display: flex; gap: 10px; }
+    .replybar textarea { flex: 1; height: 60px; padding: 10px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 13px; resize: none; font-family: inherit; }
+    .btn { padding: 8px 14px; border: 0; border-radius: 8px; cursor: pointer; font-size: 13px; background: #e2e8f0; }
+    .btn.primary { background: #2563eb; color: #fff; }
+    .btn:disabled { opacity: .5; cursor: not-allowed; }
+    .empty-tip { color: #94a3b8; font-size: 13px; text-align: center; padding: 40px 0; }
+  </style>
+</head>
+<body>
+  <header class="topbar">
+    <div class="logo">🎧 人工客服坐席台</div>
+    <span id="gateUserBar" style="font-size:12px;color:#475569"></span>
+    <div class="spacer"></div>
+    <a href="index.html" target="_blank">客服对话</a>
+    <a href="ops.html" target="_blank">运营中心</a>
+    <a href="admin.html" target="_blank">管理后台</a>
+    <button id="logoutBtn" class="btn" style="padding:4px 10px;font-size:12px">退出登录</button>
+  </header>
+  <div class="wrap">
+    <div class="left">
+      <div style="padding:10px 14px;border-bottom:1px solid #e5e7eb;display:flex;justify-content:space-between;align-items:center">
+        <b style="font-size:13px">人工工单</b>
+        <button class="btn" style="padding:3px 10px;font-size:12px" id="btnRefresh">刷新</button>
+      </div>
+      <div id="ticketList"><div class="empty-tip">加载中…</div></div>
+    </div>
+    <div class="right" id="detailPane">
+      <div class="empty-tip" style="margin:auto">← 请选择左侧工单，查看会话并回复用户</div>
+    </div>
+  </div>
+  <div id="toast"></div>
+  <script src="https://cdn.jsdelivr.net/npm/@tencent-ai/workbuddy-cloud-sdk@dev/lib/index.global.js"></script>
+  <script src="js/config.js"></script>
+  <script src="js/tenant.js"></script>
+  <script src="js/gate.js"></script>
+  <script src="js/seat.js"></script>
+</body>
+</html>

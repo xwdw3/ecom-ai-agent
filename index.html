@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>电商AI助手 · 智能客服</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <header class="topbar">
+    <div class="logo"><span class="dot"></span>电商AI助手 · 智能客服</div>
+    <div class="spacer"></div>
+    <span class="sub" id="backendTag">RAG 混合检索</span>
+    <span id="userArea"></span>
+    <a href="admin.html" target="_blank">管理后台</a>
+    <a href="console.html" target="_blank">运营台</a>
+  </header>
+
+  <div class="chat-wrap">
+    <div id="messages"></div>
+    <div class="chips" id="chips"></div>
+  </div>
+
+  <div class="input-bar">
+    <div class="chat-foot"><a id="manualEntry">问题没解决？转人工客服 →</a></div>
+    <div class="input-inner">
+      <textarea id="input" aria-label="输入您的问题" placeholder="请输入您的问题，Enter 发送 / Shift+Enter 换行"></textarea>
+      <button id="sendBtn" aria-label="发送消息">发送</button>
+    </div>
+  </div>
+
+  <!-- 人工兜底工单 -->
+  <div class="modal-mask" id="ticketMask">
+    <div class="modal">
+      <h3>转人工客服</h3>
+      <div class="form-row">
+        <label>问题描述</label>
+        <textarea id="ticketQuestion" style="min-height:80px"></textarea>
+      </div>
+      <div class="form-row">
+        <label>联系方式（手机号 / 微信号，便于人工跟进）</label>
+        <input id="ticketContact" placeholder="选填">
+      </div>
+      <div class="btns">
+        <button class="btn ghost" id="ticketCancel">取消</button>
+        <button class="btn primary" id="ticketSubmit">提交登记</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 登录 / 注册（手机号 / 邮箱验证码） -->
+  <div class="modal-mask" id="uaMask">
+    <div class="modal">
+      <h3>登录 / 注册 <button class="modal-x" id="uaClose" aria-label="关闭">✕</button></h3>
+      <div class="ua-tabs">
+        <button type="button" class="on" id="uaTabPhone">手机号登录</button>
+        <button type="button" id="uaTabEmail">邮箱登录</button>
+      </div>
+      <div class="form-row" id="uaRowPhone">
+        <label>手机号</label>
+        <input id="uaPhone" inputmode="numeric" maxlength="11" placeholder="11 位手机号">
+      </div>
+      <div class="form-row" id="uaRowEmail" style="display:none">
+        <label>邮箱</label>
+        <input id="uaEmail" type="email" placeholder="you@example.com">
+      </div>
+      <div class="form-row">
+        <label>验证码</label>
+        <div class="ua-code-row">
+          <input id="uaCode" inputmode="numeric" maxlength="8" placeholder="请输入验证码">
+          <button type="button" class="btn ghost" id="uaSendCode">获取验证码</button>
+        </div>
+      </div>
+      <p class="ua-tip" id="uaModeTip">新用户验证后自动注册，无需密码</p>
+      <p class="ua-error" id="uaError" role="alert"></p>
+      <div class="btns">
+        <button class="btn primary" id="uaSubmit">登录 / 注册</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@tencent-ai/workbuddy-cloud-sdk@dev/lib/index.global.js"></script>
+  <script src="js/config.js"></script>
+  <script src="js/tenant.js"></script>
+  <script src="js/retrieval.js"></script>
+  <script src="js/pii.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/cards.js"></script>
+  <script src="js/userauth.js"></script>
+  <script src="js/tools.js"></script>
+  <script src="js/chat.js"></script>
+</body>
+</html>

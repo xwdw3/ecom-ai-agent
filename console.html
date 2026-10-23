@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>电商AI助手 · 运营台（Phase2）</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <header class="topbar">
+    <div class="logo"><span class="dot"></span>电商AI助手 · 运营台</div>
+    <div class="spacer"></div>
+    <span class="sub">第二阶段 · 催付 / 售后 / 分流</span>
+    <a href="index.html" target="_blank">客服对话</a>
+    <a href="admin.html" target="_blank">管理后台</a>
+  </header>
+
+  <div class="layout">
+    <aside class="sidebar">
+      <button class="tab active" data-panel="collect">🛒 弃单催付</button>
+      <button class="tab" data-panel="marketing">🎁 活动提醒 / 补券</button>
+      <button class="tab" data-panel="aftersales">🧾 售后工单</button>
+      <button class="tab" data-panel="router">🚦 分流日志</button>
+      <button class="tab" data-panel="audit">🛡 工具审计</button>
+    </aside>
+
+    <main class="main">
+      <!-- 弃单催付 -->
+      <section class="panel active" id="panel-collect">
+        <h2>购物车弃单识别 + 分层智能催付</h2>
+        <div class="card">
+          <div class="toolbar">
+            <span class="empty" style="font-size:12px">识别规则：待支付超过</span>
+            <input id="abandonMin" type="number" value="30" min="1" style="width:64px">
+            <span class="empty" style="font-size:12px">分钟</span>
+            <button class="btn primary" id="scanAbandon">🔍 扫描弃单</button>
+            <button class="btn ghost" id="refreshCollect">刷新已发任务</button>
+            <button class="btn blue" id="consumeMq">⚡ 消费MQ队列（异步发送）</button>
+            <button class="btn ghost" id="mqStats">📊 队列状态</button>
+            <button class="btn ghost" id="mqRedrive">♻️ 死信重驱动</button>
+          </div>
+          <table class="tbl">
+            <thead><tr><th style="width:16%">订单号</th><th>用户</th><th>金额</th><th>弃单时长</th><th>建议分层</th><th style="width:110px">操作</th></tr></thead>
+            <tbody id="abandonBody"><tr><td colspan="6" class="empty">点击「扫描弃单」开始识别</td></tr></tbody>
+          </table>
+        </div>
+        <div class="card">
+          <h3 style="font-size:14px;margin-bottom:8px">已发送催付任务</h3>
+          <table class="tbl">
+            <thead><tr><th style="width:16%">订单号</th><th>用户</th><th>分层</th><th>渠道</th><th>策略</th><th>时间</th></tr></thead>
+            <tbody id="collectBody"><tr><td colspan="6" class="empty">加载中…</td></tr></tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- 活动提醒 / 补券 -->
+      <section class="panel" id="panel-marketing">
+        <h2>活动到期提醒 + 优惠券补发</h2>
+        <div class="card">
+          <h3 style="font-size:14px;margin-bottom:8px">活动到期提醒（即将到期）</h3>
+          <table class="tbl">
+            <thead><tr><th style="width:12%">用户</th><th>活动</th><th>到期时间</th><th>提醒内容</th><th style="width:110px">操作</th></tr></thead>
+            <tbody id="remindBody"><tr><td colspan="5" class="empty">加载中…</td></tr></tbody>
+          </table>
+        </div>
+        <div class="card">
+          <div class="toolbar">
+            <h3 style="font-size:14px;margin:0 8px 0 0">优惠券补发</h3>
+            <input id="cgUser" placeholder="用户ID（如 U1002）" style="width:150px">
+            <input id="cgName" placeholder="券名称" style="width:150px">
+            <input id="cgAmount" type="number" placeholder="面额" style="width:80px">
+            <input id="cgReason" placeholder="补发原因" class="grow">
+            <button class="btn primary" id="grantCoupon">➕ 补发</button>
+          </div>
+          <table class="tbl">
+            <thead><tr><th style="width:12%">用户</th><th>券名称</th><th>面额</th><th>原因</th><th>有效期</th><th>时间</th></tr></thead>
+            <tbody id="couponBody"><tr><td colspan="6" class="empty">加载中…</td></tr></tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- 售后工单 -->
+      <section class="panel" id="panel-aftersales">
+        <h2>售后工单（AI 自动创建 / 自动办理）</h2>
+        <div class="card">
+          <div class="toolbar">
+            <select id="asFilter">
+              <option value="">全部工单</option>
+              <option value="auto">AI 自动办理</option>
+              <option value="manual">需人工跟进</option>
+            </select>
+            <button class="btn ghost" id="asRefresh">刷新</button>
+          </div>
+          <table class="tbl">
+            <thead><tr><th style="width:14%">工单号</th><th style="width:14%">订单号</th><th>类型</th><th>原因</th><th>状态</th><th>工单系统流转</th><th>备注</th><th>时间</th></tr></thead>
+            <tbody id="asBody"><tr><td colspan="8" class="empty">加载中…</td></tr></tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- 分流日志 -->
+      <section class="panel" id="panel-router">
+        <h2>人机分流日志</h2>
+        <div class="card">
+          <div class="toolbar">
+            <select id="rtFilter">
+              <option value="">全部路由</option>
+              <option value="ai">AI 自动处理</option>
+              <option value="human">转人工</option>
+            </select>
+            <button class="btn ghost" id="rtRefresh">刷新</button>
+          </div>
+          <div id="rtList"><div class="empty">加载中…</div></div>
+        </div>
+      </section>
+
+      <!-- 工具审计 -->
+      <section class="panel" id="panel-audit">
+        <h2>工具调用审计日志（调用人 / 时间 / 入参 / 返回 / 状态 / 耗时）</h2>
+        <div class="card">
+          <div class="toolbar">
+            <select id="auditStatus">
+              <option value="">全部状态</option>
+              <option value="success">success</option>
+              <option value="failed">failed</option>
+              <option value="denied">denied（鉴权/权限拒绝）</option>
+            </select>
+            <input id="auditTrace" class="grow" placeholder="按链路 TraceId 精确筛选（追踪一次对话完整调用链）…">
+            <button class="btn ghost" id="auditRefresh">刷新</button>
+          </div>
+          <div id="auditList"><div class="empty">加载中…</div></div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@tencent-ai/workbuddy-cloud-sdk@dev/lib/index.global.js"></script>
+  <script src="js/config.js"></script>
+  <script src="js/tenant.js"></script>
+  <script src="js/gate.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/mq.js"></script>
+  <script src="js/tools.js"></script>
+  <script src="js/console.js"></script>
+</body>
+</html>

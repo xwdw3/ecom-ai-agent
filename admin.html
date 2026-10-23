@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>电商AI助手 · 管理后台</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <header class="topbar">
+    <div class="logo"><span class="dot"></span>电商AI助手 · 管理后台</div>
+    <div class="spacer"></div>
+    <span class="sub">第一阶段 · 知识库 / 日志 / 统计 / 工单</span>
+    <a href="index.html" target="_blank">前往客服对话</a>
+    <a href="console.html" target="_blank">运营台</a>
+  </header>
+
+  <div class="layout">
+    <aside class="sidebar">
+      <button class="tab active" data-panel="kb">📚 知识库管理</button>
+      <button class="tab" data-panel="logs">💬 对话日志</button>
+      <button class="tab" data-panel="stats">📊 问题统计</button>
+      <button class="tab" data-panel="tickets">🎫 人工工单</button>
+      <button class="tab" data-panel="alerts">🚨 错误告警</button>
+    </aside>
+
+    <main class="main">
+      <!-- 知识库管理 -->
+      <section class="panel active" id="panel-kb">
+        <h2>知识库管理</h2>
+        <div class="card">
+          <div class="toolbar">
+            <select id="kbFilterCat">
+              <option value="">全部分类</option>
+              <option value="sku">商品SKU</option>
+              <option value="faq">平台FAQ</option>
+              <option value="activity">活动规则</option>
+            </select>
+            <select id="kbFilterStatus">
+              <option value="">全部状态</option>
+              <option value="draft">草稿</option>
+              <option value="pending">待审核</option>
+              <option value="published">已发布</option>
+              <option value="offline">已下架</option>
+            </select>
+            <input id="kbSearch" class="grow" placeholder="搜索标题 / 内容关键词…">
+            <button class="btn ghost" id="kbImport">⬆ 批量导入</button>
+            <input type="file" id="kbImportFile" accept=".txt,.md,.csv,.json" style="display:none">
+            <button class="btn primary" id="kbAdd">＋ 新增知识</button>
+          </div>
+          <table class="tbl">
+            <thead>
+              <tr><th style="width:30%">标题</th><th>分类</th><th>标签</th><th>状态</th><th>分块</th><th>更新时间</th><th style="width:190px">操作</th></tr>
+            </thead>
+            <tbody id="kbBody"><tr><td colspan="7" class="empty">加载中…</td></tr></tbody>
+          </table>
+        </div>
+        <div class="card" id="versionPane" style="display:none">
+          <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">
+            <b id="versionTitle" style="font-size:14px">版本历史</b>
+            <button class="btn small ghost" id="versionClose">收起</button>
+          </div>
+          <table class="tbl">
+            <thead><tr><th style="width:8%">版本</th><th style="width:12%">动作</th><th>备注</th><th style="width:14%">操作人</th><th style="width:16%">时间</th><th style="width:12%">操作</th></tr></thead>
+            <tbody id="versionBody"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- 对话日志 -->
+      <section class="panel" id="panel-logs">
+        <h2>对话日志</h2>
+        <div class="card">
+          <div class="toolbar">
+            <select id="logRole">
+              <option value="">全部角色</option>
+              <option value="user">用户提问</option>
+              <option value="assistant">AI回答</option>
+            </select>
+            <select id="logFallback">
+              <option value="">全部结果</option>
+              <option value="1">仅看兜底/未答</option>
+              <option value="0">仅看正常回答</option>
+            </select>
+            <input id="logSession" class="grow" placeholder="按会话ID精确筛选…">
+            <button class="btn ghost" id="logRefresh">刷新</button>
+            <button class="btn blue" id="logExport">⬇ 导出CSV</button>
+          </div>
+          <div id="logList"><div class="empty">加载中…</div></div>
+        </div>
+      </section>
+
+      <!-- 问题统计 -->
+      <section class="panel" id="panel-stats">
+        <h2>问题统计</h2>
+        <div class="stat-grid">
+          <div class="stat"><div class="num" id="stTotal">-</div><div class="label">累计用户提问</div></div>
+          <div class="stat"><div class="num" id="stFallback">-</div><div class="label">兜底/未答次数</div></div>
+          <div class="stat"><div class="num" id="stRate">-</div><div class="label">知识库命中率</div></div>
+          <div class="stat"><div class="num" id="stSessions">-</div><div class="label">会话数</div></div>
+        </div>
+        <div class="card">
+          <h3 style="font-size:14px;margin-bottom:8px">近7日提问量趋势</h3>
+          <div class="bars" id="statBars"></div>
+        </div>
+      </section>
+
+      <!-- 人工工单 -->
+      <section class="panel" id="panel-tickets">
+        <h2>人工工单（兜底入口）</h2>
+        <div class="card">
+          <div class="toolbar">
+            <select id="tkFilter">
+              <option value="">全部状态</option>
+              <option value="open">待处理</option>
+              <option value="done">已处理</option>
+            </select>
+            <button class="btn ghost" id="tkRefresh">刷新</button>
+          </div>
+          <table class="tbl">
+            <thead><tr><th style="width:38%">问题</th><th>联系方式</th><th>状态</th><th>处理备注</th><th>时间</th><th style="width:90px">操作</th></tr></thead>
+            <tbody id="tkBody"><tr><td colspan="6" class="empty">加载中…</td></tr></tbody>
+          </table>
+        </div>
+      </section>
+      <!-- 错误告警 -->
+      <section class="panel" id="panel-alerts">
+        <h2>错误告警（LLM调用失败 / 检索异常）</h2>
+        <div class="card">
+          <div class="toolbar">
+            <select id="alertSeverity">
+              <option value="">全部级别</option>
+              <option value="error">error</option>
+              <option value="warn">warn</option>
+            </select>
+            <select id="alertType">
+              <option value="">全部类型</option>
+              <option value="llm_call_failed">LLM调用失败</option>
+              <option value="retrieval_error">检索异常</option>
+            </select>
+            <button class="btn ghost" id="alertRefresh">刷新</button>
+          </div>
+          <div id="alertList"><div class="empty">加载中…</div></div>
+        </div>
+      </section>
+
+      <!-- 账号管理 -->
+      <section class="panel" id="panel-users">
+        <h2>账号管理（仅管理员可见）</h2>
+        <div class="card">
+          <div class="toolbar">
+            <button class="btn primary" id="userAdd">＋ 新增账号</button>
+            <button class="btn ghost" id="userRefresh">刷新</button>
+            <span class="sub" id="userHint" style="font-size:12px;color:var(--muted)">新增/重置的密码至少 8 位；至少保留 1 个启用中的管理员</span>
+          </div>
+          <table>
+            <thead>
+              <tr><th>账号</th><th>角色</th><th>状态</th><th>创建时间</th><th>操作</th></tr>
+            </thead>
+            <tbody id="userBody"><tr><td colspan="5" class="empty">加载中…</td></tr></tbody>
+          </table>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <!-- 知识编辑弹窗 -->
+  <div class="modal-mask" id="kbMask">
+    <div class="modal" style="width:560px">
+      <h3 id="kbModalTitle">新增知识</h3>
+      <div class="form-row">
+        <label>分类</label>
+        <select id="kbCat">
+          <option value="sku">商品SKU（参数/规格/材质/尺码/质保）</option>
+          <option value="faq">平台FAQ（发货/快递/退换货政策）</option>
+          <option value="activity">活动规则（满减/优惠券）</option>
+        </select>
+      </div>
+      <div class="form-row">
+        <label>标题</label>
+        <input id="kbTitle" placeholder="如：纯棉白T恤（SKU: TEE-WT-001）">
+      </div>
+      <div class="form-row">
+        <label>标签（英文逗号分隔，用于检索加权）</label>
+        <input id="kbTags" placeholder="T恤,白T,纯棉">
+      </div>
+      <div class="form-row">
+        <label>内容（空行分段；保存时自动切分为检索分块）</label>
+        <textarea id="kbContent" style="min-height:180px" placeholder="【商品参数】…&#10;【尺码建议】…&#10;【质保】…"></textarea>
+      </div>
+      <div class="form-row">
+        <label>流程</label>
+        <div style="font-size:12px;color:#64748b;padding:6px 0">保存后进入<b>草稿</b>状态，提交审核并由管理员审批发布后才会进入问答检索；已发布内容在审批前不受编辑影响</div>
+      </div>
+      <div class="btns">
+        <button class="btn ghost" id="kbCancel">取消</button>
+        <button class="btn primary" id="kbSave">保存</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@tencent-ai/workbuddy-cloud-sdk@dev/lib/index.global.js"></script>
+  <script src="js/config.js"></script>
+  <script src="js/tenant.js"></script>
+  <script src="js/gate.js"></script>
+  <script src="js/kbflow.js"></script>
+  <script src="js/retrieval.js"></script>
+  <script src="js/pii.js"></script>
+  <script src="js/admin.js"></script>
+</body>
+</html>

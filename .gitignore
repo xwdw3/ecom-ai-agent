@@ -1,0 +1,18 @@
+# 依赖与日志
+node_modules/
+logs/
+*.log
+
+# 本地密钥（管理员密码等，绝不入库）
+tools/.secrets.json
+.env
+.env.*
+
+# 一次性生成的中间产物（可由 split-*.cjs 重新生成）
+tools/_*.json
+tools/_*.txt
+
+# 会话/系统文件
+.DS_Store
+Thumbs.db
+*.swp
